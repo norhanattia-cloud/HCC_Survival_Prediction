@@ -140,5 +140,5 @@ if st.button("Predict Survival"):
     st.subheader("Prediction Result:")
     if prediction[0] == 1:
         st.success("🟢 Prediction: Favorable Outcome / Likely to Survive")
-    else:
-        st.error("🔴 Prediction: Unfavorable Outcome / High Mortality Risk")
+else:
+    st.error("🔴 Prediction: Unfavorable Outcome / High Mortality Risk")
