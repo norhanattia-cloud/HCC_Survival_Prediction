@@ -2,139 +2,127 @@ import streamlit as st
 import pandas as pd
 import numpy as np
 import joblib
-from sklearn.preprocessing import StandardScaler
 
 model = joblib.load('hcc_voting_model.pkl')
-
-try:
-    scaler = joblib.load('hcc_scaler.pkl')
-    # اختبار لو الscaler متوقع عدد مختلف
-    if hasattr(scaler, "n_features_in_") and scaler.n_features_in_ != 46:
-        scaler = StandardScaler()
-except:
-    scaler = StandardScaler()
-
+scaler = joblib.load('hcc_scaler.pkl')
 features = joblib.load('hcc_features.pkl')
 
 st.title("HCC Patient Survival Prediction Tool")
-st.sidebar.header("Patient Clinical Data Input")
+st.write("Please enter the patient's clinical and laboratory parameters below:")
 
-gender_val = st.sidebar.selectbox("Gender", ["Female", "Male"])
-gender = 1.0 if gender_val == "Male" else 0.0
-age = st.sidebar.number_input("Age (Years)", value=50.0)
-ps = st.sidebar.selectbox("Performance Status (PS)", [0.0, 1.0, 2.0, 3.0, 4.0])
+st.sidebar.header("Patient Parameters")
 
-hcv_val = st.sidebar.selectbox("HCV Ab", ["Negative", "Positive"])
-hcv = 1.0 if hcv_val == "Positive" else 0.0
+age = st.sidebar.number_input("Age (years)", min_value=18.0, max_value=100.0, value=50.0)
+gender = st.sidebar.selectbox("Gender", ["Male", "Female"])
+symptoms = st.sidebar.selectbox("Symptoms", ["No", "Yes"])
+alcohol = st.sidebar.selectbox("Alcohol", ["No", "Yes"])
+smoking = st.sidebar.selectbox("Smoking", ["No", "Yes"])
+diabetes = st.sidebar.selectbox("Diabetes", ["No", "Yes"])
+obesity = st.sidebar.selectbox("Obesity", ["No", "Yes"])
+hepb = st.sidebar.selectbox("Hepatitis B", ["No", "Yes"])
+hepc = st.sidebar.selectbox("Hepatitis C", ["No", "Yes"])
+cirrhosis = st.sidebar.selectbox("Cirrhosis", ["No", "Yes"])
+endemic = st.sidebar.selectbox("Endemic Calcification", ["No", "Yes"])
+fatty_liver = st.sidebar.selectbox("Non-alcoholic Steatohepatitis (NASH)", ["No", "Yes"])
 
-hbsag_val = st.sidebar.selectbox("HBsAg", ["Negative", "Positive"])
-hbsag = 1.0 if hbsag_val == "Positive" else 0.0
+total_bil = st.sidebar.number_input("Total Bilirubin (mg/dL)", min_value=0.0, max_value=50.0, value=1.0)
+direct_bil = st.sidebar.number_input("Direct Bilirubin (mg/dL)", min_value=0.0, max_value=30.0, value=0.2)
+ast = st.sidebar.number_input("AST (U/L)", min_value=0.0, max_value=2000.0, value=30.0)
+alt = st.sidebar.number_input("ALT (U/L)", min_value=0.0, max_value=2000.0, value=30.0)
+alp = st.sidebar.number_input("ALP (U/L)", min_value=0.0, max_value=2000.0, value=80.0)
+afp = st.sidebar.number_input("AFP (ng/mL)", min_value=0.0, max_value=100000.0, value=10.0)
+albumin = st.sidebar.number_input("Albumin (g/dL)", min_value=0.0, max_value=10.0, value=3.5)
+hemoglobin = st.sidebar.number_input("Hemoglobin (g/dL)", min_value=0.0, max_value=25.0, value=12.0)
+platelets = st.sidebar.number_input("Platelets (10^3/uL)", min_value=0.0, max_value=1000.0, value=200.0)
+inr = st.sidebar.number_input("INR", min_value=0.0, max_value=10.0, value=1.0)
+creatinine = st.sidebar.number_input("Creatinine (mg/dL)", min_value=0.0, max_value=15.0, value=0.8)
+ferritin = st.sidebar.number_input("Ferritin (ng/mL)", min_value=0.0, max_value=10000.0, value=100.0)
 
-hbeag_val = st.sidebar.selectbox("HBeAg", ["Negative", "Positive"])
-hbeag = 1.0 if hbeag_val == "Positive" else 0.0
+nodules = st.sidebar.selectbox("Number of Nodules", ["Single", "Multiple"])
+major_dim = st.sidebar.number_input("Major Dimension (cm)", min_value=0.0, max_value=30.0, value=3.0)
+encap = st.sidebar.selectbox("Encasement / Tumor Encapsulation", ["No", "Yes"])
+encephalopathy = st.sidebar.selectbox("Encephalopathy Grade", ["None", "Grade 1-2", "Grade 3-4"])
+ascites = st.sidebar.selectbox("Ascites", ["None", "Mild", "Moderate-Severe"])
+portal_htn = st.sidebar.selectbox("Portal Hypertension", ["No", "Yes"])
+metastasis = st.sidebar.selectbox("Metastasis", ["No", "Yes"])
 
-hbcab_val = st.sidebar.selectbox("HBcAb", ["Negative", "Positive"])
-hbcab = 1.0 if hbcab_val == "Positive" else 0.0
-
-cirrhosis_val = st.sidebar.selectbox("Cirrhosis", ["No", "Yes"])
-cirrhosis = 1.0 if cirrhosis_val == "Yes" else 0.0
-
-alcohol_val = st.sidebar.selectbox("Alcohol Consumption", ["No", "Yes"])
-alcohol = 1.0 if alcohol_val == "Yes" else 0.0
-alcohol_grams = st.sidebar.number_input("Alcohol Grams/day", value=0.0) if alcohol == 1.0 else 0.0
-
-smoking_val = st.sidebar.selectbox("Smoking", ["No", "Yes"])
-smoking = 1.0 if smoking_val == "Yes" else 0.0
-packs_year = st.sidebar.number_input("Packs/Year", value=0.0) if smoking == 1.0 else 0.0
-
-symptoms_val = st.sidebar.selectbox("Symptoms", ["Absent", "Present"])
-symptoms = 1.0 if symptoms_val == "Present" else 0.0
-
-endemic_val = st.sidebar.selectbox("Endemic Country", ["No", "Yes"])
-endemic = 1.0 if endemic_val == "Yes" else 0.0
-
-diabetes = 1.0 if st.sidebar.selectbox("Diabetes", ["No", "Yes"]) == "Yes" else 0.0
-obesity = 1.0 if st.sidebar.selectbox("Obesity", ["No", "Yes"]) == "Yes" else 0.0
-htn = 1.0 if st.sidebar.selectbox("Arterial Hypertension", ["No", "Yes"]) == "Yes" else 0.0
-renal = 1.0 if st.sidebar.selectbox("Chronic Renal Insufficiency", ["No", "Yes"]) == "Yes" else 0.0
-hiv = 1.0 if st.sidebar.selectbox("HIV", ["No", "Yes"]) == "Yes" else 0.0
-nash = 1.0 if st.sidebar.selectbox("NASH", ["No", "Yes"]) == "Yes" else 0.0
-hemochromatosis = 1.0 if st.sidebar.selectbox("Hemochromatosis", ["No", "Yes"]) == "Yes" else 0.0
-
-comorbidities_count = diabetes + obesity + htn + renal + hiv + nash + hemochromatosis
-
-total_bil = st.sidebar.number_input("Total Bilirubin (mg/dL)", value=1.0)
-direct_bil = st.sidebar.number_input("Direct Bilirubin", value=0.3)
-albumin = st.sidebar.number_input("Albumin (g/dL)", value=3.5)
-alt = st.sidebar.number_input("ALT (U/L)", value=40.0)
-ast = st.sidebar.number_input("AST (U/L)", value=40.0)
-alp = st.sidebar.number_input("ALP (U/L)", value=100.0)
-ggt = st.sidebar.number_input("GGT (U/L)", value=50.0)
-total_protein = st.sidebar.number_input("Total Protein", value=7.0)
-platelets = st.sidebar.number_input("Platelets (10^3/uL)", value=150.0)
-leucocytes = st.sidebar.number_input("Leucocytes", value=5.0)
-hemoglobin = st.sidebar.number_input("Hemoglobin (g/dL)", value=12.0)
-mcv = st.sidebar.number_input("MCV", value=90.0)
-inr = st.sidebar.number_input("INR", value=1.0)
-afp = st.sidebar.number_input("AFP (ng/mL)", value=10.0)
-creatinine = st.sidebar.number_input("Creatinine (mg/dL)", value=1.1)
-iron = st.sidebar.number_input("Iron", value=80.0)
-ferritin = st.sidebar.number_input("Ferritin", value=200.0)
-oxygen_sat = st.sidebar.number_input("Oxygen Saturation", value=30.0)
-
-nodule = st.sidebar.number_input("Number of Nodules", value=1.0)
-major_dim = st.sidebar.number_input("Major Dimension (cm)", value=3.0)
-ascites = st.sidebar.selectbox("Ascites Grade", [0.0, 1.0, 2.0, 3.0])
-encephalopathy = st.sidebar.selectbox("Encephalopathy Grade", [0.0, 1.0, 2.0, 3.0])
-varices = 1.0 if st.sidebar.selectbox("Varices", ["No", "Yes"]) == "Yes" else 0.0
-splenomegaly = 1.0 if st.sidebar.selectbox("Splenomegaly", ["No", "Yes"]) == "Yes" else 0.0
-pht = 1.0 if st.sidebar.selectbox("Portal Hypertension (PHT)", ["No", "Yes"]) == "Yes" else 0.0
-pvt = 1.0 if st.sidebar.selectbox("Portal Vein Thrombosis (PVT/PVTT)", ["No", "Yes"]) == "Yes" else 0.0
-metastasis = 1.0 if st.sidebar.selectbox("Metastasis", ["No", "Yes"]) == "Yes" else 0.0
-hallmark = 1.0 if st.sidebar.selectbox("Hallmark", ["No", "Yes"]) == "Yes" else 0.0
-
-ast_alt_ratio = ast / alt if alt > 0 else 0.0
-albi_score = (np.log10(total_bil * 17.1) * 0.66) - ((albumin * 10) * 0.085)
-fib4_score = (age * ast) / ((platelets / 1000) * np.sqrt(alt)) if alt > 0 else 0.0
+ast_alt_ratio = ast / alt if alt != 0 else 0.0
+albi_score = (np.log10(total_bil * 17.1) * 0.66) + (albumin * -0.085)
+fib4_score = (age * ast) / (platelets * 1000) * np.sqrt(alt) if platelets != 0 else 0.0
 
 cp_score = 0
-cp_score += 1 if total_bil < 2.0 else (2 if 2.0 <= total_bil <= 3.0 else 3)
-cp_score += 1 if albumin > 3.5 else (2 if 2.8 <= albumin <= 3.5 else 3)
-cp_score += 1 if inr < 1.7 else (2 if 1.7 <= inr <= 2.3 else 3)
-cp_score += 1 if ascites == 1.0 else (2 if ascites == 2.0 else 3)
-cp_score += 1 if encephalopathy == 1.0 else (2 if encephalopathy == 2.0 else 3)
+if total_bil > 3.0: cp_score += 3
+elif total_bil >= 2.0: cp_score += 2
+else: cp_score += 1
 
-if st.button("Predict Survival"):
-    raw_data = {
-        'Gender': gender, 'Symptoms': symptoms, 'Alcohol': alcohol, 'HBsAg': hbsag, 'HBeAg': hbeag, 
-        'HBcAb': hbcab, 'HCVAb': hcv, 'Cirrhosis': cirrhosis, 'Endemic Country': endemic, 'Smoking': smoking, 
-        'Diabetes': diabetes, 'Obesity': obesity, 'Hemochromatosis': hemochromatosis, 'Arterial Hypertension': htn, 
-        'Chronic Renal Insufficency': renal, 'HIV': hiv, 'NASH': nash, 'Varices': varices, 'Splenomegaly': splenomegaly, 
-        'PHT': pht, 'PVT': pvt, 'Metastasis': metastasis, 'Hallmark': hallmark, 'Age': age, 'Alcohol Grams_day': alcohol_grams, 
-        'Packs_year': packs_year, 'PS': ps, 'Encephalopathy': encephalopathy, 'Ascites': ascites, 'INR': inr, 
-        'AFP': afp, 'Hemoglobin': hemoglobin, 'MCV': mcv, 'Leucocytes': leucocytes, 'Platelets': platelets, 
-        'Total_Bil': total_bil, 'ALT': alt, 'AST': ast, 'GGT': ggt, 'ALP': alp, 'Total Protein': total_protein, 
-        'Creatinine': creatinine, 'Nodule': nodule, 'Major_Dim': major_dim, 'Iron': iron, 
-        'Oxygen Saturation': oxygen_sat, 'Ferritin': ferritin,
-        'AST_ALT_Ratio': ast_alt_ratio, 'ALBI_Score': albi_score, 'FIB4_Score': fib4_score, 
-        'Child_Pugh_Score': cp_score, 'Comorbidities_Count': comorbidities_count
-    }
-    
-    input_df = pd.DataFrame([raw_data])
-    
-    for col in features:
-        if col not in input_df.columns:
-            input_df[col] = 0.0
-            
-    input_df = input_df[features]
-    
-    
-    if st.button("Predict Survival", key="predict_btn"):
-        input_scaled = scaler.transform(input_df.values)
-        prediction = model.predict(input_scaled)
+if albumin > 3.5: cp_score += 1
+elif albumin >= 2.8: cp_score += 2
+else: cp_score += 3
 
-        st.subheader("Prediction Result:")
-        if prediction[0] == 1:
-                st.success("🟢 Prediction: Favorable Outcome / Likely to Survive")
-        else:
-                st.error("🔴 Prediction: Unfavorable Outcome / High Mortality Risk")
+if inr > 2.3: cp_score += 3
+elif inr >= 1.7: cp_score += 2
+else: cp_score += 1
+
+if ascites == "Moderate-Severe": cp_score += 3
+elif ascites == "Mild": cp_score += 2
+else: cp_score += 1
+
+if encephalopathy == "Grade 3-4": cp_score += 3
+elif encephalopathy == "Grade 1-2": cp_score += 2
+else: cp_score += 1
+
+raw_data = {
+    'Age': age,
+    'Gender': 1 if gender == "Male" else 0,
+    'Symptoms': 1 if symptoms == "Yes" else 0,
+    'Alcohol': 1 if alcohol == "Yes" else 0,
+    'Smoking': 1 if smoking == "Yes" else 0,
+    'Diabetes': 1 if diabetes == "Yes" else 0,
+    'Obesity': 1 if obesity == "Yes" else 0,
+    'Hepatitis_B': 1 if hepb == "Yes" else 0,
+    'Hepatitis_C': 1 if hepc == "Yes" else 0,
+    'Cirrhosis': 1 if cirrhosis == "Yes" else 0,
+    'Endemic_Calcification': 1 if endemic == "Yes" else 0,
+    'NASH': 1 if fatty_liver == "Yes" else 0,
+    'Total_Bilirubin': total_bil,
+    'Direct_Bilirubin': direct_bil,
+    'AST': ast,
+    'ALT': alt,
+    'ALP': alp,
+    'AFP': afp,
+    'Albumin': albumin,
+    'Hemoglobin': hemoglobin,
+    'Platelets': platelets,
+    'INR': inr,
+    'Creatinine': creatinine,
+    'Ferritin': ferritin,
+    'Number_of_Nodules': 1 if nodules == "Single" else 2,
+    'Major_Dimension': major_dim,
+    'Tumor_Encapsulation': 1 if encap == "Yes" else 0,
+    'Encephalopathy_Grade': 0 if encephalopathy == "None" else (1 if encephalopathy == "Grade 1-2" else 2),
+    'Ascites': 0 if ascites == "None" else (1 if ascites == "Mild" else 2),
+    'Portal_Hypertension': 1 if portal_htn == "Yes" else 0,
+    'Metastasis': 1 if metastasis == "Yes" else 0,
+    'AST_ALT_Ratio': ast_alt_ratio,
+    'ALBI_Score': albi_score,
+    'FIB4_Score': fib4_score,
+    'Child_Pugh_Score': cp_score
+}
+
+input_df = pd.DataFrame([raw_data])
+
+for col in features:
+    if col not in input_df.columns:
+        input_df[col] = 0.0
+
+input_df = input_df[features]
+
+if st.button("Predict Survival", key="predict_btn"):
+    input_scaled = scaler.transform(input_df.values)
+    prediction = model.predict(input_scaled)
+
+    st.subheader("Prediction Result:")
+    if prediction[0] == 1:
+        st.success("🟢 Prediction: Favorable Outcome / Likely to Survive")
+    else:
+        st.error("🔴 Prediction: Unfavorable Outcome / High Mortality Risk")
