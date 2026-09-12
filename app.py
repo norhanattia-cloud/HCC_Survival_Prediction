@@ -118,7 +118,12 @@ for col in features:
 input_df = input_df[features]
 
 if st.button("Predict Survival", key="predict_btn"):
-    input_scaled = scaler.transform(input_df.values)
+    try:
+        input_scaled = scaler.transform(input_df.values)
+    except:
+        
+        input_scaled = input_df.values
+
     prediction = model.predict(input_scaled)
 
     st.subheader("Prediction Result:")
