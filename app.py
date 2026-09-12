@@ -12,9 +12,9 @@ st.write("Please enter the patient's clinical and laboratory parameters below:")
 
 st.sidebar.header("Patient Parameters")
 
-age = st.sidebar.number_input("Age (years)", min_value=18.0, max_value=100.0, value=50.0)
+age = st.sidebar.number_input("Age (years)", min_value=18.0, max_value=100.0, value=35.0)
 gender = st.sidebar.selectbox("Gender", ["Male", "Female"])
-symptoms = st.sidebar.selectbox("Symptoms", ["No", "Yes"])
+symptoms = st.sidebar.selectbox("Symptoms", ["No", "Yes"], index=0)
 alcohol = st.sidebar.selectbox("Alcohol", ["No", "Yes"])
 smoking = st.sidebar.selectbox("Smoking", ["No", "Yes"])
 diabetes = st.sidebar.selectbox("Diabetes", ["No", "Yes"])
@@ -25,21 +25,21 @@ cirrhosis = st.sidebar.selectbox("Cirrhosis", ["No", "Yes"])
 endemic = st.sidebar.selectbox("Endemic Calcification", ["No", "Yes"])
 fatty_liver = st.sidebar.selectbox("Non-alcoholic Steatohepatitis (NASH)", ["No", "Yes"])
 
-total_bil = st.sidebar.number_input("Total Bilirubin (mg/dL)", min_value=0.0, max_value=50.0, value=1.0)
+total_bil = st.sidebar.number_input("Total Bilirubin (mg/dL)", min_value=0.0, max_value=50.0, value=0.6)
 direct_bil = st.sidebar.number_input("Direct Bilirubin (mg/dL)", min_value=0.0, max_value=30.0, value=0.2)
-ast = st.sidebar.number_input("AST (U/L)", min_value=0.0, max_value=2000.0, value=30.0)
-alt = st.sidebar.number_input("ALT (U/L)", min_value=0.0, max_value=2000.0, value=30.0)
-alp = st.sidebar.number_input("ALP (U/L)", min_value=0.0, max_value=2000.0, value=80.0)
-afp = st.sidebar.number_input("AFP (ng/mL)", min_value=0.0, max_value=100000.0, value=10.0)
-albumin = st.sidebar.number_input("Albumin (g/dL)", min_value=0.0, max_value=10.0, value=3.5)
-hemoglobin = st.sidebar.number_input("Hemoglobin (g/dL)", min_value=0.0, max_value=25.0, value=12.0)
-platelets = st.sidebar.number_input("Platelets (10^3/uL)", min_value=0.0, max_value=1000.0, value=200.0)
-inr = st.sidebar.number_input("INR", min_value=0.0, max_value=10.0, value=1.0)
-creatinine = st.sidebar.number_input("Creatinine (mg/dL)", min_value=0.0, max_value=15.0, value=0.8)
-ferritin = st.sidebar.number_input("Ferritin (ng/mL)", min_value=0.0, max_value=10000.0, value=100.0)
+ast = st.sidebar.number_input("AST (U/L)", min_value=0.0, max_value=2000.0, value=25.0)
+alt = st.sidebar.number_input("ALT (U/L)", min_value=0.0, max_value=2000.0, value=25.0)
+alp = st.sidebar.number_input("ALP (U/L)", min_value=0.0, max_value=2000.0, value=70.0)
+afp = st.sidebar.number_input("AFP (ng/mL)", min_value=0.0, max_value=100000.0, value=5.0)
+albumin = st.sidebar.number_input("Albumin (g/dL)", min_value=0.0, max_value=10.0, value=4.2)
+hemoglobin = st.sidebar.number_input("Hemoglobin (g/dL)", min_value=0.0, max_value=25.0, value=13.5)
+platelets = st.sidebar.number_input("Platelets (10^3/uL)", min_value=0.0, max_value=1000.0, value=250.0)
+inr = st.sidebar.number_input("INR", min_value=0.0, max_value=10.0, value=0.9)
+creatinine = st.sidebar.number_input("Creatinine (mg/dL)", min_value=0.0, max_value=15.0, value=0.7)
+ferritin = st.sidebar.number_input("Ferritin (ng/mL)", min_value=0.0, max_value=10000.0, value=80.0)
 
 nodules = st.sidebar.selectbox("Number of Nodules", ["Single", "Multiple"])
-major_dim = st.sidebar.number_input("Major Dimension (cm)", min_value=0.0, max_value=30.0, value=3.0)
+major_dim = st.sidebar.number_input("Major Dimension (cm)", min_value=0.0, max_value=30.0, value=1.5)
 encap = st.sidebar.selectbox("Encasement / Tumor Encapsulation", ["No", "Yes"])
 encephalopathy = st.sidebar.selectbox("Encephalopathy Grade", ["None", "Grade 1-2", "Grade 3-4"])
 ascites = st.sidebar.selectbox("Ascites", ["None", "Mild", "Moderate-Severe"])
@@ -121,7 +121,6 @@ if st.button("Predict Survival", key="predict_btn"):
     try:
         input_scaled = scaler.transform(input_df.values)
     except:
-        
         input_scaled = input_df.values
 
     prediction = model.predict(input_scaled)
