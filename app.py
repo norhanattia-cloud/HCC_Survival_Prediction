@@ -5,7 +5,7 @@ import joblib
 from sklearn.preprocessing import StandardScaler
 
 model = joblib.load('hcc_voting_model.pkl')
-# لو ملف الscaler القديم معاند، هنعمل واحد جديد مؤقت متوافق مع الـ 46 ميزة الحالية لمنع الأخطاء تماماً
+
 try:
     scaler = joblib.load('hcc_scaler.pkl')
     # اختبار لو الscaler متوقع عدد مختلف
@@ -128,17 +128,13 @@ if st.button("Predict Survival"):
             
     input_df = input_df[features]
     
-    # محاولة التحويل بأمان تام بغض النظر عن محتوى الملف القديم
-    try:
-        input_scaled = scaler.transform(input_df.values)
-    except:
-        # لو حصل أي خطأ في السكيلر القديم، هنعدي الداتا للموديل مباشرة بدون سكيلينج عشان نخلص المشكلة فوراً
-        input_scaled = input_df.values
-        
-    prediction = model.predict(input_scaled)
     
+    if st.button("Predict Survival"):
+        input_scaled = scaler.transform(input_df.values)
+    prediction = model.predict(input_scaled)
+
     st.subheader("Prediction Result:")
     if prediction[0] == 1:
         st.success("🟢 Prediction: Favorable Outcome / Likely to Survive")
-else:
-    st.error("🔴 Prediction: Unfavorable Outcome / High Mortality Risk")
+    else:
+        st.error("🔴 Prediction: Unfavorable Outcome / High Mortality Risk")
