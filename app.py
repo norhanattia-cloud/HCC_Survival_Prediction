@@ -133,8 +133,8 @@ if st.button("Predict Survival"):
         input_scaled = scaler.transform(input_df.values)
         prediction = model.predict(input_scaled)
 
-    st.subheader("Prediction Result:")
-    if prediction[0] == 1:
-        st.success("🟢 Prediction: Favorable Outcome / Likely to Survive")
-    else:
-        st.error("🔴 Prediction: Unfavorable Outcome / High Mortality Risk")
+        st.subheader("Prediction Result:")
+        if prediction[0] == 1:
+                st.success("🟢 Prediction: Favorable Outcome / Likely to Survive")
+        else:
+                st.error("🔴 Prediction: Unfavorable Outcome / High Mortality Risk")
