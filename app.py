@@ -131,7 +131,7 @@ if st.button("Predict Survival"):
     
     if st.button("Predict Survival", key="predict_btn"):
         input_scaled = scaler.transform(input_df.values)
-    prediction = model.predict(input_scaled)
+        prediction = model.predict(input_scaled)
 
     st.subheader("Prediction Result:")
     if prediction[0] == 1:
